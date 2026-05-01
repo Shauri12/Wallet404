@@ -57,18 +57,25 @@ app.use((req, res, next) => {
 // Body parsing
 app.use(express.json());
 
-// ── API routes ─────────────────────────────────────────────────────
-app.use('/api/expenses', expenseRoutes(db));
+// ── Static frontend ───────────────────────────────────────────────
+const publicPath = path.resolve('public');
+app.use(express.static(publicPath));
 
 // Health check
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-// ── Static frontend ───────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// API routes — defined AFTER static so they don't get shadowed
+app.use('/api/expenses', expenseRoutes(db));
 
 // SPA fallback — serve index.html for any non-API route
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+app.get('*', (req, res) => {
+  const indexPath = path.join(publicPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error(`Failed to send index.html: ${err.message}`);
+      res.status(404).send('Frontend not found. Please ensure the public directory exists.');
+    }
+  });
 });
 
 // ── Global error handler ──────────────────────────────────────────
