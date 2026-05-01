@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Wallet404 — Premium Personal Finance Dashboard." />
+  <title>Wallet404</title>
+
+  <!-- Google Fonts: Outfit for a modern geometric look, Inter for readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Boxicons for professional icons -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <!-- Chart.js for Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="brand-icon"><i class='bx bx-wallet-alt'></i></div>
+        <h1 class="brand-text">Wallet404</h1>
+      </div>
+
+      <nav class="sidebar__nav">
+        <a href="#" class="nav-item active" id="nav-dashboard">
+          <i class='bx bx-grid-alt'></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" id="nav-analytics">
+          <i class='bx bx-pie-chart-alt-2'></i>
+          <span>Analytics</span>
+        </a>
+        <a href="#" class="nav-item" id="nav-settings">
+          <i class='bx bx-cog'></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar__footer">
+        <div class="user-profile">
+          <img src="https://ui-avatars.com/api/?name=User&background=6c63ff&color=fff&rounded=true" alt="User" class="user-avatar" />
+          <div class="user-info">
+            <span class="user-name">Welcome back</span>
+            <span class="user-role">Premium Member</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar__search">
+          <i class='bx bx-search'></i>
+          <input type="text" placeholder="Search transactions..." disabled />
+        </div>
+        <div class="topbar__actions">
+          <button class="icon-btn"><i class='bx bx-bell'></i></button>
+          <button class="btn btn--primary" id="btn-open-modal">
+            <i class='bx bx-plus'></i> New Expense
+          </button>
+        </div>
+      </header>
+
+      <div class="dashboard-scroll">
+        <!-- Dashboard View -->
+        <div id="view-dashboard">
+          <!-- Summary Cards -->
+        <section class="summary-section" aria-label="Expense summary">
+          <div class="summary-grid" id="summary-grid">
+            <!-- Populated by JS -->
+          </div>
+        </section>
+
+        <!-- Main Transactions Area -->
+        <section class="transactions-section">
+          <div class="card transactions-card">
+            <div class="card__header">
+              <h2 class="card__title">Recent Transactions</h2>
+              
+              <div class="filters">
+                <button class="btn btn--outline" id="btn-export-csv" title="Export as CSV"><i class='bx bx-export'></i></button>
+                <div class="filter-group">
+                  <i class='bx bx-filter'></i>
+                  <select id="filter-category" class="select-clean">
+                    <option value="">All Categories</option>
+                    <option value="Food">Food</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Health">Health</option>
+                    <option value="Education">Education</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="filter-group">
+                  <i class='bx bx-sort'></i>
+                  <select id="filter-sort" class="select-clean">
+                    <option value="date_desc">Newest First</option>
+                    <option value="date_asc">Oldest First</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="card__body">
+              <div class="filter-total-banner">
+                <span>Total for current view:</span>
+                <strong id="filter-total">₹0.00</strong>
+                <span class="badge" id="expense-count">0 items</span>
+              </div>
+
+              <div id="table-loader" class="loader-container">
+                <div class="loader"></div>
+                <p>Syncing your wallet...</p>
+              </div>
+
+              <div id="table-error" class="error-container" hidden>
+                <i class='bx bx-error-circle error-icon'></i>
+                <p class="error-text" id="table-error-text">Failed to load data.</p>
+                <button class="btn btn--outline" id="btn-retry">Retry Connection</button>
+              </div>
+
+              <div id="table-empty" class="empty-container" hidden>
+                <div class="empty-icon-wrap"><i class='bx bx-receipt'></i></div>
+                <h3>No expenses found</h3>
+                <p>Your wallet is looking a bit empty here. Track a new expense to get started!</p>
+                <button class="btn btn--primary mt-4" id="btn-empty-add">Track Expense</button>
+              </div>
+
+              <div class="table-wrapper" id="table-wrapper" hidden>
+                <table class="data-table" id="expense-table">
+                  <thead>
+                    <tr>
+                      <th>Transaction</th>
+                      <th>Category</th>
+                      <th>Date</th>
+                      <th class="text-right">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="expense-tbody">
+                    <!-- Rows injected by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+        </div> <!-- End view-dashboard -->
+
+        <!-- Analytics View -->
+        <div id="view-analytics" hidden>
+          <div class="analytics-header">
+            <h2 class="card__title">Spending Analytics</h2>
+            <p class="text-secondary mt-1">Visualize where your money is going.</p>
+          </div>
+          
+          <div class="charts-grid mt-4">
+            <div class="card chart-card">
+              <div class="card__header border-none pb-0">
+                <h3 class="card__title text-md">Expenses by Category</h3>
+              </div>
+              <div class="card__body chart-container">
+                <canvas id="chart-category"></canvas>
+              </div>
+            </div>
+            
+            <div class="card chart-card">
+              <div class="card__header border-none pb-0">
+                <h3 class="card__title text-md">Spending Timeline</h3>
+              </div>
+              <div class="card__body chart-container">
+                <canvas id="chart-timeline"></canvas>
+              </div>
+            </div>
+
+            <div class="card chart-card chart-card--full">
+              <div class="card__header border-none pb-0">
+                <h3 class="card__title text-md">Expenses by Day of Week</h3>
+              </div>
+              <div class="card__body chart-container">
+                <canvas id="chart-dow"></canvas>
+              </div>
+            </div>
+          </div>
+        </div> <!-- End view-analytics -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Expense Modal -->
+  <div class="modal-backdrop" id="expense-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">Track New Expense</h3>
+          <button class="icon-btn modal-close" id="btn-close-modal"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="modal-body">
+          <form id="expense-form" novalidate>
+            
+            <div class="amount-hero-input">
+              <span class="currency-symbol">₹</span>
+              <input type="number" id="input-amount" class="hero-input" placeholder="0.00" min="0.01" step="0.01" required autocomplete="off" />
+            </div>
+            <span class="form-error text-center block" id="error-amount"></span>
+
+            <div class="form-group mb-4">
+              <label for="input-category" class="form-label">Category</label>
+              <div class="input-with-icon">
+                <i class='bx bx-category'></i>
+                <select id="input-category" class="form-input" required>
+                  <option value="" disabled selected>Select category</option>
+                  <option value="Food">Food</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Bills">Bills</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Health">Health</option>
+                  <option value="Education">Education</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <span class="form-error" id="error-category"></span>
+            </div>
+
+            <div class="form-group mb-4">
+              <label for="input-date" class="form-label">Date</label>
+              <div class="input-with-icon">
+                <i class='bx bx-calendar'></i>
+                <input type="date" id="input-date" class="form-input" required />
+              </div>
+              <span class="form-error" id="error-date"></span>
+            </div>
+            <div class="form-group mb-4">
+              <label for="input-description" class="form-label">Description</label>
+              <div class="input-with-icon">
+                <i class='bx bx-note'></i>
+                <input type="text" id="input-description" class="form-input" placeholder="What was this for?" maxlength="200" autocomplete="off" required />
+              </div>
+              <span class="form-error" id="error-description"></span>
+            </div>
+
+            <div id="form-status" class="form-status" role="status" aria-live="polite"></div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn--ghost" id="btn-cancel-modal">Cancel</button>
+              <button type="submit" class="btn btn--primary btn--glow" id="btn-submit">
+                <span class="btn__text">Save Transaction</span>
+                <span class="btn__loader"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js" type="module"></script>
+</body>
+</html>
